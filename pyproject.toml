@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "learn-pyside6"
+version = "0.1.0"
+description = ""
+authors = ["ScatterTemple <scatterlearning@gmail.com>"]
+license = "LGPL2.1"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.12, <3.13"
+pyside6 = "^6.7.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
