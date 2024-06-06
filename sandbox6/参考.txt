@@ -1,0 +1,70 @@
+import sys
+from PySide6.QtWidgets import QApplication, QTreeView, QTableView, QVBoxLayout, QWidget
+from PySide6.QtGui import QStandardItemModel, QStandardItem
+
+class TreeTableModel(QStandardItemModel):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        
+        # ツリーのルートアイテムを作成
+        rootItem = self.invisibleRootItem()
+        
+        # prm アイテムとその子テーブルを作成
+        prmItem = QStandardItem("prm")
+        prmTableModel = QStandardItemModel(3, 2)
+        prmTableModel.setHorizontalHeaderLabels(["prm_col1", "prm_col2"])
+        for row in range(3):
+            for column in range(2):
+                item = QStandardItem(f"prm({row}, {column})")
+                prmTableModel.setItem(row, column, item)
+        prmItem.appendRow(QStandardItem("prm_table"))
+        prmItem.child(0).appendColumn([QStandardItem(prmTableModel.index(row, column).data()) for row in range(prmTableModel.rowCount()) for column in range(prmTableModel.columnCount())])
+        rootItem.appendRow(prmItem)
+        
+        # obj アイテムとその子テーブルを作成
+        objItem = QStandardItem("obj")
+        objTableModel = QStandardItemModel(3, 2)
+        objTableModel.setHorizontalHeaderLabels(["obj_col1", "obj_col2"])
+        for row in range(3):
+            for column in range(2):
+                item = QStandardItem(f"obj({row}, {column})")
+                objTableModel.setItem(row, column, item)
+        objItem.appendRow(QStandardItem("obj_table"))
+        objItem.child(0).appendColumn([QStandardItem(objTableModel.index(row, column).data()) for row in range(objTableModel.rowCount()) for column in range(objTableModel.columnCount())])
+        rootItem.appendRow(objItem)
+
+class MainWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Tree and Table View Example")
+        self.resize(600, 400)
+        
+        layout = QVBoxLayout(self)
+        
+        # ツリービューを作成
+        self.treeView = QTreeView(self)
+        self.treeModel = TreeTableModel(self.treeView)
+        self.treeView.setModel(self.treeModel)
+        layout.addWidget(self.treeView)
+        
+        # prm_table と obj_table を表示するためのテーブルビューを作成
+        self.tableView = QTableView(self)
+        layout.addWidget(self.tableView)
+        
+        # ツリービューのアイテムが選択されたときにテーブルビューを更新する
+        self.treeView.selectionModel().selectionChanged.connect(self.on_selection_changed)
+        
+    def on_selection_changed(self, selected, deselected):
+        index = self.treeView.selectionModel().currentIndex()
+        if index.isValid():
+            item = self.treeModel.itemFromIndex(index)
+            if item.text() == "prm_table":
+                self.tableView.setModel(item.model().parent())
+            elif item.text() == "obj_table":
+                self.tableView.setModel(item.model().parent())
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec())
